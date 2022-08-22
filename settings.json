@@ -1,0 +1,38 @@
+{
+    "twitch": {
+        "client_id": "gp762nuuoqcoxypju8c569th9wz7q5",
+        "client_secret": "ld3yozh61lb4w16kyy7za4cvxi2t0p"
+    },
+    "communities": {
+        "save_path": "./communities"
+    },
+    "video_settings": {
+        "max_duration": 0,
+        "title": "out",
+        "framerate": 60,
+        "width": 1920,
+        "height": 1080,
+        "aspect_ratio_num": 9,
+        "aspect_ratio_den": 16,
+        "logs_path": "./logs"
+    },
+    "youtube": {
+        "templates": {
+            "en": {
+                "title_template_bmd": "BEST CLIPS OF {} | {}", 
+                "title_template_bcd": "BEST {} CLIPS | {} ", 
+                "description_templates_bmd": {
+                    "Header": "This is a recopilation of the best clips of {}.\n", 
+                    "clip_template": "Clip ({}): {}\n\n",
+                    "footer": "Thanks for watching :)\n"
+                },
+                "description_templates_bcd": {
+                    "Header": "This is a recopilation of the best clips of {}.\n", 
+                    "clip_template": "Clip ({}): {}\n\n", 
+                    "footer": "Thanks for watching :)\n"
+                }
+            }
+
+        }
+    }
+}
