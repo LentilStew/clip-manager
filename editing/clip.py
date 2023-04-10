@@ -2,10 +2,7 @@ import ffmpeg
 
 
 class Clip:
-    def __init__(self, file_path, twitch_metadata={}):
-
-        self.twitch_metadata: dict = twitch_metadata
-        self.twitch: bool = bool(self.twitch_metadata)
+    def __init__(self, file_path):
 
         self.file_path = file_path
 
@@ -40,12 +37,10 @@ class Clip:
 #            "video_stream": self.video_info,
 #            "audio_stream": self.audio_info
 #        }
-        if self.twitch:
-            clip_as_json["twitch_metadata"] = self.twitch_metadata
         
         return clip_as_json
 
-    def open_clip(self, options = {}) -> bool:
+    def open_clip(self, options = {}):
         
         self.clip = ffmpeg.input(self.file_path, **options)
         
@@ -59,7 +54,7 @@ class Clip:
         if not self.video_info:
             self.video_info = ffmpeg.input("vnullsrc",f="lavfi")
 
-        return True
+        return self
 
 
 def get_clip_data(path: str) -> dict:

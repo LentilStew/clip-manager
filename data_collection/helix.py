@@ -19,7 +19,47 @@ class Twitch:
             "Client-Id": client_id
         }
 
+    def get_user_ids(self,login_names):
+        """
+        Retrieves user IDs for an array of login names from the Twitch API.
 
+        :param login_names: An array of Twitch user login names.
+        :return: A dictionary mapping login names to user IDs.
+        """
+
+        # Convert the login names to lowercase for API call
+        login_names_lower = [name.lower() for name in login_names]
+
+        # Split login_names into groups of 100 or less to avoid exceeding Twitch API limits
+        login_groups = [login_names_lower[i:i+100] for i in range(0, len(login_names_lower), 100)]
+
+        user_ids = {}
+
+        for login_group in login_groups:
+
+            # Construct the query string with up to 100 lowercase login names
+            query_params = "&login=".join(login_group)
+            url = f"{self.path}users?login={query_params}"
+
+            # Make the request to the Twitch API
+            response = requests.get(url, headers=self.header)
+
+            # Check the response status code
+            if response.status_code != 200:
+                raise Exception(f"Error retrieving user IDs: {response.text}")
+
+            json_response = response.json()
+
+            # Check the response structure
+            if 'data' not in json_response:
+                raise Exception(f"Unexpected response structure: {json_response}")
+
+            # Add the user IDs to the result dictionary, with names converted to expected format
+            for user in json_response['data']:
+                user_ids[user['display_name']] = user['id']
+
+        return user_ids
+    
     def get_top_clips(self, broadcaster: int, clips=10, ended_at:datetime.datetime =datetime.datetime.now(), started_at:datetime.datetime=datetime.datetime.now() - datetime.timedelta(days=7)) -> list:
         """clips = twitch.get_top_clips(broadcaster1, clips=5)
             broadcaster, // broadcaster id int

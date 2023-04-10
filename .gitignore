@@ -1,0 +1,11 @@
+# Ignore all JSON files except settings.json
+*.json
+!settings.json
+
+# Ignore virtual environment
+venv/
+inputs/
+outputs/
+
+# Ignore Python cache files
+__pycache__/

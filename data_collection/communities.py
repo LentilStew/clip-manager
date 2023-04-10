@@ -1,34 +1,46 @@
 from data_collection.helix import Twitch
 import datetime
 import json
-client_id = ""
-client_secret = ""
-communities_path = ""
-with open("settings.json", "r") as f:
-    settings = json.load(f)
-    client_id = settings["twitch"]["client_id"]
-    client_secret = settings["twitch"]["client_secret"]
-    communities_path = settings["communities"]["save_path"]
 
-twitch = Twitch(client_id, client_secret)
-
+class Member():
+    id = None
+    name = None
+    size = 0
 
 class Community():
-    def __init__(self, name, members, language="en"):
-        self.name = name
-        self.members = members
-        self.language = language
-
+    def __init__(self,twitch:Twitch, name=None, members=[], language="en"):
+        self.name:str = name
+        self.members:list = members
+        self.language:str = language
+        self.twitch  = twitch
         pass
 
+    def add_member(self,member:Member):
+        self.members.append(member)
+
+    def get_member_ids(self):
+        member_names = [member.name for member in self.members]
+        ids:dict = self.twitch.get_user_ids(member_names)
+
+        for member in self.members:
+            member.id = ids.get(member.name, None)
+
     def get_best_community_clips(self, clips_to_get=10, members_to_get=10):
+
+        self.members = sorted(self.members, key=lambda member: member.size, reverse=True)
+
         clips = []
         count = 0
+
         for member in self.members[:members_to_get]:
-            print(str(count) + "/" + str(len(self.members)))
+            if(not member.id):
+                print("Member", member.name, "has no id")
+                continue
+
             count += 1
-            res = twitch.get_top_clips(member["id"], clips=clips_to_get)
+            res = self.twitch.get_top_clips(member.id, clips=clips_to_get)
             clips.extend(res)
+            
         # sort clips by views
         clips.sort(key=lambda x: x["view_count"], reverse=True)
 
@@ -41,8 +53,8 @@ class Community():
             top_members = len(self.members)
             print("Top members number is greater than the number of members in the community. Setting top_members to " + str(top_members))
 
-        res = twitch.get_top_clips(
-            self.members[day % top_members]["id"], clips=clips_to_get)
+        res = self.twitch.get_top_clips(
+            self.members[day % top_members].id, clips=clips_to_get)
 
         return res
 

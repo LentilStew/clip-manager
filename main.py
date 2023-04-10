@@ -1,188 +1,141 @@
-import threading
-from data_collection.helix import Twitch
-from data_collection.communities import Community, load_community
-from editing.clip import Clip
-from editing.video import Video
 import json
 import os
-import time
+from data_collection.communities import Community, Member
+import urllib.request
+from alive_progress import alive_it, alive_bar
+from editing.clip import Clip
+from editing.video import Video
+from data_collection.helix import Twitch
+from youtube_metadata import generate_youtube_data
+import uuid
 
-finished_adding_clips = False
-
-# open settings.json
-with open("settings.json", "r") as f:
+# Load settings from JSON file
+with open('settings.json', 'r') as f:
     settings = json.load(f)
-    community_path = settings["communities"]["save_path"]
 
-video_queue = []
+# Get communities from Twitch Atlas API or local file
+with urllib.request.urlopen(settings['communities_atlas']) as url:
+    data = json.loads(url.read().decode())
 
+# Initialize Twitch API client
+twitch = Twitch(client_id=settings['twitch_client_id'], client_secret=settings['twitch_client_secret'])
 
-def run_video_queue():
-    while True:
-        if video_queue:
-            video: Video = video_queue.pop(0)
-            print("Running video: {}".format(video.title))
-            video.make_video()
-            print("Finished video: {}".format(video.title))
-        elif finished_adding_clips and not video_queue:
-            break
-        else:
-            time.sleep(3)
+# Process communities and their members
+communities = {}
+for streamer_data in data["nodes"]:
+    communities[streamer_data["attributes"]["Modularity Class"]] = communities.get(streamer_data["attributes"]["Modularity Class"], Community(name=streamer_data["attributes"]["Modularity Class"], members=[], twitch=twitch))
+    new_member = Member()
+    new_member.name = streamer_data["label"]
+    new_member.size = streamer_data["size"]
+    communities[streamer_data["attributes"]["Modularity Class"]].add_member(new_member)
 
+# Get member IDs for each community
+for community in communities.values():
+    community.get_member_ids()
 
-# run run_video_queue in a separate thread
-th = threading.Thread(target=run_video_queue)
-th.start()
+# Process clips for each community
 
-YOUTUBE_DATA_PATH = "./youtube_data/{}/".format(time.strftime("%Y-%m-%d"))
-VIDEO_OUTPUT_PATH = "./videos/{}/".format(time.strftime("%Y-%m-%d"))
+video_commands = []
+for community_name, community in communities.items():
+    
+    if(not settings["community_video"]):
+        break
 
-if not os.path.exists(YOUTUBE_DATA_PATH):
-    os.makedirs(YOUTUBE_DATA_PATH)
+    print("Finding clips....")
+    clips = community.get_best_community_clips(clips_to_get=settings['clips_to_get'], members_to_get=settings['members_to_get'])
 
-if not os.path.exists(VIDEO_OUTPUT_PATH):
-    os.makedirs(VIDEO_OUTPUT_PATH)
+    new_video = Video(
+        max_duration=settings['max_video_duration'],
+        framerate=settings['framerate'],
+        width=settings['video_width'],
+        height=settings['video_height'],
+        aspect_ratio_num=settings['aspect_ratio_num'],
+        aspect_ratio_den=settings['aspect_ratio_den'],
+        output_options=settings['output_options'],
+        output=settings['video_output'])
 
-def create_youtube_info(video: Video, type: str) -> dict:
-    if not video.clips:
-        print("Video has no clips")
-        return {}
+    print("processing clips...")
+    
+    clips_used = []
+    for clip_data in alive_it(clips):
 
-    video_json = video.to_json()
-    video_json["youtube_data"] = {}
-    if video.community:
-        community_name = video.community.name
-        language = video.community.language
-    else:
-        community_name = "twitch"
-        language = "en"
-
-    streamer_name = community_name
-    for clip in video.clips:
-        clip: Clip
-        if clip.twitch_metadata:
-            streamer_name = clip.twitch_metadata["broadcaster_name"]
-
-    if type == "bcd":
-        title = settings["youtube"]["templates"][language]["title_template_bcd"].format(
-            community_name, time.strftime("%Y-%m-%d"))
-        desciption_templates = settings["youtube"]["templates"][language]["description_templates_bcd"]
-        Header = desciption_templates["Header"].format(community_name)
-        clip_template = desciption_templates["clip_template"]
-        footer = desciption_templates["footer"]
-
-    elif type == "bmd":
-        title = settings["youtube"]["templates"][language]["title_template_bmd"].format(
-            streamer_name, time.strftime("%Y-%m-%d"))
-        desciption_templates = settings["youtube"]["templates"][language]["description_templates_bmd"]
-        Header = desciption_templates["Header"].format(streamer_name)
-        clip_template = desciption_templates["clip_template"]
-        footer = desciption_templates["footer"]
-
-    for clip in video.clips:
-        clip: Clip
-        if clip.twitch_metadata:
-            clip_name = clip.twitch_metadata["title"]
-            clip_url = clip.twitch_metadata["url"]
-            Header += clip_template.format(clip_name, clip_url)
-
-    video_json["youtube_data"]["title"] = title
-    video_json["youtube_data"]["description"] = Header + footer
-
-    return video_json
-
-transition = Clip("./inputs/transition.mp4")
-transition.open_clip()
-
-
-# make bmd videos for all communities
-for file in os.listdir(community_path):
-
-    curr_community = load_community(community_path + "/" + file)
-
-    clips = curr_community.get_best_member_clips(
-        clips_to_get=50, top_members=30)
-
-    title = "bmd-{}-{}".format(
-        curr_community.name, time.strftime("%Y-%m-%d"))
-
-    logs_path = "./logs/bmd-{}-{}".format(
-        curr_community.name, time.strftime("%Y-%m-%d"))
-
-    # video creation
-    new_video = Video(max_duration=60*3,
-                      framerate=24,
-                      output_options={"vcodec": "libx264", "crf": "18", 
-                                      "acodec": "aac", "f": "mp4"},
-                      path=VIDEO_OUTPUT_PATH,
-                      title= title,
-                      community=curr_community,
-                      logs_path=logs_path,
-                      transition=transition)
-
-    # add clips until video duration is reached
-    for clip in clips:
-
-        nuevo = Clip(clip["video_path"], clip)
-        if nuevo.probe == False:
+        new_clip:Clip = Clip(clip_data["video_path"])
+        
+        if new_clip.probe == False:
             continue
 
-        nuevo.open_clip(options={"vcodec": "h264", "acodec": "aac"})
+        new_clip.open_clip(options=settings['clip_options'])
 
-        if not new_video.add_clip(nuevo):
+        if not new_video.add_clip(new_clip):
             break
 
-    video_queue.append(new_video)
+        clips_used.append(clip_data)
+    
+    if len(new_video.clips) == 0:
+        print("skiping video because no clips found")
+        continue
 
-    # create youtube info
-    youtube_info = create_youtube_info(new_video, "bmd")
+    video_data = generate_youtube_data(clips_used)
 
-    with open(YOUTUBE_DATA_PATH + title + ".json", "w") as f:
-        json.dump(youtube_info, f, indent=4)
+    video_data["ffmpeg_command"] = " ".join(new_video.create_ffmpeg_command())
+    video_data["community_class"] =  community_name
 
-# make bcd videos for all communities
-for file in os.listdir(community_path):
+    # Convert the data to a JSON string
+    json_str = json.dumps(video_data)
 
-    curr_community = load_community(community_path + "/" + file)
+    # Save the JSON string to a file
+    with open("{outputs}/{id}.json".format(outputs=settings["output_folder"], id=str(uuid.uuid1())), "w") as f:
+        f.write(json_str)
 
-    clips = curr_community.get_best_community_clips(
-        clips_to_get=50, members_to_get=30)
+video_commands = []
+for community_name, community in communities.items():
 
-    title = "bcd-{}-{}".format(
-        curr_community.name, time.strftime("%Y-%m-%d"))
+    if(not settings["member_video"]):
+        break
 
-    logs_path = "./logs/bcd-{}-{}".format(
-        curr_community.name, time.strftime("%Y-%m-%d"))
+    print("Finding clips....")
+    community:Community
+    clips = community.get_best_member_clips(clips_to_get=settings["member_clips_to_get"],top_members=settings["member_top_members"])
 
-    # video creation
-    new_video = Video(max_duration=60*10,
-                      width=1920,
-                      height=1080,
-                      framerate=60,
-                      output_options={"vcodec": "libx264",
-                                      "acodec": "aac", "f": "flv"},
-                      community=curr_community,
-                      title=title,
-                      logs_path=logs_path)
+    new_video = Video(
+        max_duration=settings['max_video_duration'],
+        framerate=settings['framerate'],
+        width=settings['video_width'],
+        height=settings['video_height'],
+        aspect_ratio_num=settings['aspect_ratio_num'],
+        aspect_ratio_den=settings['aspect_ratio_den'],
+        output_options=settings['output_options'],
+        output=settings['video_output'])
 
-    # add clips until video duration is reached
+    print("processing clips...")
+    
+    clips_used = []
+    for clip_data in alive_it(clips):
 
-    for clip in clips:
-
-        nuevo = Clip(clip["video_path"], clip)
-        if nuevo.probe == False:
+        new_clip:Clip = Clip(clip_data["video_path"])
+        
+        if new_clip.probe == False:
             continue
-        nuevo.open_clip(options={"vcodec": "h264", "acodec": "aac"})
 
-        if not new_video.add_clip(nuevo):
+        new_clip.open_clip(options=settings['clip_options'])
+
+        if not new_video.add_clip(new_clip):
             break
 
-    youtube_info = create_youtube_info(new_video, "bcd")
+        clips_used.append(clip_data)
+    
+    if len(new_video.clips) == 0:
+        print("skiping video because no clips found")
+        continue
 
-    with open(YOUTUBE_DATA_PATH + title + ".json", "w") as f:
-        json.dump(youtube_info, f, indent=4)
+    video_data = generate_youtube_data(clips_used)
 
-finished_adding_clips = True
+    video_data["ffmpeg_command"] = " ".join(new_video.create_ffmpeg_command())
+    video_data["community_class"] =  community_name
 
-#wait th to finish
-th.join()
+    # Convert the data to a JSON string
+    json_str = json.dumps(video_data)
+
+    # Save the JSON string to a file
+    with open("{outputs}/{id}.json".format(outputs=settings["output_folder"], id=str(uuid.uuid1())), "w") as f:
+        f.write(json_str)
