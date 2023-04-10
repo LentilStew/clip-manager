@@ -10,11 +10,6 @@ Customizable settings for video output, clip selection, and more
 Installation
 To install the Community Highlights Bot, follow these steps:
 
-## Clone the repository to your local machine
-Install the required dependencies by running pip install -r requirements.txt
-Create a settings.json file based on the example file provided, and fill in the necessary values
-Run the script using python main.py
-
 ## Configuration
 The Community Highlights Bot is highly customizable, and allows you to configure a variety of settings to control how the highlight videos are generated. The following settings are available in the settings.json file:
 
