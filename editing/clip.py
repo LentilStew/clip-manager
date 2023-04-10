@@ -7,7 +7,7 @@ class Clip:
         self.file_path = file_path
 
         self.probe = False
-        
+        self.is_open = False
         streams_info,self.format = get_clip_data(self.file_path)
         
         if not streams_info and not self.format:
@@ -53,6 +53,8 @@ class Clip:
             self.audio = ffmpeg.input("anullsrc=cl=mono",f="lavfi", t="1")
         if not self.video_info:
             self.video_info = ffmpeg.input("vnullsrc",f="lavfi")
+        
+        self.is_open = True
 
         return self
 

@@ -27,5 +27,6 @@
     "member_video": true,
     "member_clips_to_get":30, 
     "member_top_members":30,
-    "output_folder":"./outputs"
+    "output_folder":"./outputs",
+    "transition":"./inputs/transition_1s.mp4"
 }

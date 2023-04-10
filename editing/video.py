@@ -13,8 +13,8 @@ class Video():
                  framerate=60,
                  width=1920,
                  height=1080,
-                 aspect_ratio_num=9,
-                 aspect_ratio_den=16,
+                 aspect_ratio_num=16,
+                 aspect_ratio_den=9,
                  output_options: dict = {},
                  output="./out.mp4") -> None:
 
@@ -31,6 +31,9 @@ class Video():
         self.clips = []
 
     def add_transition(self, transition: Clip):
+
+        if(transition.is_open == False):
+            transition.open_clip()
 
         transition = self.format_clip_audio(transition)
         transition = self.format_clip_video(transition)
@@ -84,12 +87,13 @@ class Video():
         video.video = video.video.filter('fps', "{}".format(self.framerate))
 
         video.video = video.video.filter(
-            "setdar", "{}/{}".format(self.aspect_ratio_den, self.aspect_ratio_num))
+            "setdar", "{}/{}".format(self.aspect_ratio_num, self.aspect_ratio_den))
 
         return video
 
     def format_clip_audio(self, audio):
         return audio
+
 
     def create_ffmpeg_command(self) -> list:
         if len(self.clips) == 0:
@@ -109,8 +113,9 @@ class Video():
             if self.transition:
                 # Temporary workound for transition FFMPEG doesn't like multiple streams from the same file
                 # TODO: fix this
-
-                transition_path = transition_path.replace("/", "//")
+                idx = transition_path.find("/")
+                if idx != -1:
+                    transition_path = transition_path[:idx+1] + "/" + transition_path[idx+1:]
 
                 transition = Clip(transition_path)
                 transition.open_clip()

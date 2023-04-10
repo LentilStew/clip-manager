@@ -53,7 +53,10 @@ for community_name, community in communities.items():
         aspect_ratio_den=settings['aspect_ratio_den'],
         output_options=settings['output_options'],
         output=settings['video_output'])
-
+    
+    if(settings.get("transition",False)):
+        new_video.add_transition(Clip(settings["transition"]))
+        
     print("processing clips...")
     
     clips_used = []
@@ -107,6 +110,8 @@ for community_name, community in communities.items():
         output_options=settings['output_options'],
         output=settings['video_output'])
 
+    if(settings.get("transition",False)):
+        new_video.add_transition(Clip(settings["transition"]))
     print("processing clips...")
     
     clips_used = []
@@ -123,10 +128,10 @@ for community_name, community in communities.items():
             break
 
         clips_used.append(clip_data)
-    
     if len(new_video.clips) == 0:
         print("skiping video because no clips found")
         continue
+
 
     video_data = generate_youtube_data(clips_used)
 
