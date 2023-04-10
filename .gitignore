@@ -9,3 +9,5 @@ outputs/
 
 # Ignore Python cache files
 __pycache__/
+
+editing/__pycache__/
