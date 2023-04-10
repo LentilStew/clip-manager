@@ -8,6 +8,4 @@ inputs/
 outputs/
 
 # Ignore Python cache files
-__pycache__/
-
-editing/__pycache__/
+**/__pycache__/
