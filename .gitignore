@@ -1,7 +1,7 @@
 # Ignore all JSON files except settings.json
 *.json
 !settings.json
-
+.mp4
 # Ignore virtual environment
 venv/
 inputs/
