@@ -1,8 +1,6 @@
-import os
 from dotenv import load_dotenv
-
+from streamlit import secrets
 load_dotenv()
-
 SETTINGS = {
     "max_video_duration": 600,
     "framerate": 30,
@@ -38,5 +36,4 @@ SETTINGS = {
     "tags": ["best_clips", "twitch", "stream_highlights"]
 }
 
-for key, value in os.environ.items():
-    SETTINGS[key.lower()] = value
+SETTINGS.update(secrets)

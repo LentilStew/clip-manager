@@ -1,8 +1,9 @@
 from google.cloud import firestore
 from typing import Union
 import datetime
+from settings import SETTINGS
 
-db = firestore.Client.from_service_account_json("firestore-key.json")
+db = firestore.Client.from_service_account_info(SETTINGS["firebase-key"])
 
 
 def get_clips_from_firestore(date: Union[datetime.date, str, datetime.datetime] = datetime.datetime.now()) -> list:

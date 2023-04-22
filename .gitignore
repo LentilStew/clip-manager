@@ -10,3 +10,5 @@ outputs/
 
 # Ignore Python cache files
 **/__pycache__/
+
+.streamlit/
