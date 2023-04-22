@@ -1,10 +1,7 @@
-from sys import stdin
 import ffmpeg
 from data_collection.communities import Community
 from editing.clip import Clip
-import subprocess
-import json
-import os
+
 
 class Video():
 
@@ -41,11 +38,9 @@ class Video():
         self.transition = transition
         # Not tested yet
         if self.max_duration and self.duration > int(self.max_duration):
-            print("Video with this transition exceeds max duration,  trimming last clips")
             while(self.duration < self.max_duration):
                 self.clips.pop()
 
-        print("new transition added")
 
     def add_outro(self, outro: Clip):
         outro = self.format_clip_video(outro)
@@ -66,7 +61,6 @@ class Video():
             return False
 
         if self.max_duration and self.duration + int(float(new_clip.duration)) > int(self.max_duration):
-            print("Clip not added because it exceeds max duration")
             return False
 
         new_clip = self.format_clip_video(new_clip)

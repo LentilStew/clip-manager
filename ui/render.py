@@ -1,6 +1,5 @@
 from firestore import get_clips_from_firestore, save_clip_to_firestore
 import streamlit as st
-from typing import Union
 import datetime
 from settings import SETTINGS
 from get_videos import make_community_general_videos,make_community_member_videos, get_communities
@@ -40,7 +39,8 @@ def render_clip_settings():
 
 
         
-
+def as_code(text:str):
+    return "```python\n"+text+"\n```"
 
 def render_clips(clips):
     for clip in clips:
@@ -50,14 +50,13 @@ def render_clips(clips):
 
             with col1:
                 st.subheader("Tags")
-                st.code(clip["tags"])
-                st.subheader("Description")
-                st.code(clip["description"])
+                st.write(as_code(' '.join(clip["tags"])))
+                st.write(as_code(clip["description"]))
 
             with col2:
                 st.subheader("FFmpeg Data")
-                st.code(clip["ffmpeg_command"])
-from time import sleep
+                st.write(as_code(clip["ffmpeg_command"]))
+
                 
 def render_page():
     
@@ -67,7 +66,6 @@ def render_page():
     
     if "date" not in st.session_state:
         st.session_state["date"] = datetime.datetime.now()
-
     if "settings" not in st.session_state:
         st.session_state["settings"] = SETTINGS.copy()
 

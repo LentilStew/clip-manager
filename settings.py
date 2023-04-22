@@ -1,6 +1,4 @@
-from dotenv import load_dotenv
 from streamlit import secrets
-load_dotenv()
 SETTINGS = {
     "max_video_duration": 600,
     "framerate": 30,
