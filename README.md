@@ -49,8 +49,6 @@ These are the libraries you need to install to use the app
 - google-cloud-firestore
 - streamlit
 
-#### Video Demo:  <https://www.youtube.com/watch?v=zlAnIl0_3QY&feature=youtu.be&ab_channel=GabrielAyala>
-
 ## Usage
 To use the Community Highlights Bot, simply run ```streamlit run main.py``` . The bot will retrieve data about the top clips and members from each community and member, and use FFmpeg to edit the clips together into a single video. (This app doesn't run the ffmpeg commands, it just makes them)
 
