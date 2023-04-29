@@ -1,4 +1,5 @@
 See it live!!
+(Video generation doesn't work since the server that is running this app doesn't have ffmpeg installed you can only look at videos already made, Example in 2023/04/26, if you want to create your own, clone the repository)
 https://lentilstew-clip-manager-main-8ygncl.streamlit.app/
 # Community Highlights Bot
 
