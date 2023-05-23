@@ -1,5 +1,3 @@
-
-
 # import required modules
 import random
 import datetime

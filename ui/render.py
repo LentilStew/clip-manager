@@ -2,11 +2,9 @@ from firestore import get_clips_from_firestore, save_clip_to_firestore
 import streamlit as st
 import datetime
 from settings import SETTINGS
-from get_videos import make_community_general_videos,make_community_member_videos, get_communities
+from get_videos import make_community_general_videos,make_community_member_videos, get_communities,load_cached_communities
 
-@st.cache_resource
-def get_communities_wrapper():
-    return get_communities()
+
 
 
 def render_clip_settings():
@@ -75,61 +73,11 @@ def render_page():
     st.date_input(label="Clips date",key="date")
     
     with st.spinner('Finding clips'):
-        
         clips = get_clips_from_firestore(st.session_state["date"])  
-        
-        
-        if len(clips) != 0:
+        if clips:
             render_clips(clips)
-            return 
-        
-        elif st.session_state["show_video_settings"]:
-
-            render_clip_settings()
-            if st.button("Create Clips"):
-                st.session_state["show_video_settings"] = False
-                st.experimental_rerun()
-                
-            return
-        
-    #if no clips were found this means that they need to be made
-    communities = get_communities_wrapper()
-    new_videos_data = []
-    if st.session_state["settings"]['community_video']:
-        
-        video_generator = make_community_general_videos(st.session_state["settings"],communities)
+        else:
+            st.header("No clips found 🤷‍♂️")
         
 
-        while True:
-            
-            with st.spinner(text='finding clips'):
-                video = next(video_generator, None)
-                
-                if video == None:
-                    break
-                
-                render_clips([video])
-                
-            new_videos_data.append(video)
-            
-    if st.session_state["settings"]['member_video']:
-        
-        video_generator = make_community_member_videos(st.session_state["settings"],communities)
-        
-        while True:
-            
-            with st.spinner(text='finding clips'):
-                video = next(video_generator, None)
-                
-                if video == None:
-                    break
-                
-                render_clips([video])
-                
-            new_videos_data.append(video)
-
-
-
-    with st.spinner(text='uploading to the clouds'):
-        save_clip_to_firestore(new_videos_data,st.session_state["date"])
         

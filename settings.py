@@ -14,7 +14,7 @@ SETTINGS = {
         "vcodec": "h264",
         "acodec": "aac"
     },
-    "community_video": False,    
+    "community_video": True,    
     "clips_to_get": 20,
     "members_to_get": 30,
     "member_video": True,
@@ -31,7 +31,10 @@ SETTINGS = {
     "community_title_template": "Best Clips of {creator1}, {creator2} and more! - week {week_num} of {month} {year}",
     "streamer_title_template": "{streamer}'s Best Clips of {month} {year}",
     "description_template": "Check out the best clips of {streamers}! Don't forget to show some love to the creators of these clips.\n\nTimestamps:\n",
-    "tags": ["best_clips", "twitch", "stream_highlights"]
+    "tags": ["best_clips", "twitch", "stream_highlights"],
+    "save_in_firebase" : True,
+    "used_cached_communities": True,
+    "communities_cache_path":"/data/comunity_ids.pickle"
 }
 
 SETTINGS.update(secrets)

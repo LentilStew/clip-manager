@@ -2,3 +2,7 @@ ffmpeg-python
 python-twitch-client
 google-cloud-firestore
 streamlit
+
+#For terminal app
+click
+tqdm

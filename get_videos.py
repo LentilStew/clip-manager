@@ -6,7 +6,7 @@ from editing.video import Video
 from data_collection.helix import Twitch
 from youtube_metadata import generate_youtube_data
 from settings import SETTINGS
-from firestore import save_clip_to_firestore
+import pickle
 
 # Get communities from Twitch Atlas API or local file
 with urllib.request.urlopen(SETTINGS['communities_atlas']) as url:
@@ -16,7 +16,24 @@ with urllib.request.urlopen(SETTINGS['communities_atlas']) as url:
 twitch = Twitch(client_id=SETTINGS['twitch_client_id'],
                 client_secret=SETTINGS['twitch_client_secret'])
 
+#this should be stored in firebase
 
+def load_cached_communities():
+    try:
+        with open(SETTINGS["communities_cache_path"], "rb") as file:
+            return pickle.load(file)
+        
+    except FileNotFoundError:
+        return update_communities_cache()
+    
+def update_communities_cache():
+    
+    with open(SETTINGS["communities_cache_path"], "wb") as file:
+        communities = get_communities()
+        pickle.dump(communities, file)
+    
+        return communities
+    
 def get_communities():
     # Process communities and their members
     communities = {}
