@@ -7,7 +7,7 @@ from data_collection.helix import Twitch
 from youtube_metadata import generate_youtube_data
 from settings import SETTINGS
 import pickle
-
+import os
 # Get communities from Twitch Atlas API or local file
 with urllib.request.urlopen(SETTINGS['communities_atlas']) as url:
     data = json.loads(url.read().decode())
@@ -18,9 +18,10 @@ twitch = Twitch(client_id=SETTINGS['twitch_client_id'],
 
 #this should be stored in firebase
 
+
 def load_cached_communities():
     try:
-        with open(SETTINGS["communities_cache_path"], "rb") as file:
+        with open(SETTINGS["communities_cache_path"]+SETTINGS["communities_cache_filename"], "rb") as file:
             return pickle.load(file)
         
     except FileNotFoundError:
@@ -28,7 +29,9 @@ def load_cached_communities():
     
 def update_communities_cache():
     
-    with open(SETTINGS["communities_cache_path"], "wb") as file:
+    os.makedirs(SETTINGS["communities_cache_path"],exist_ok=True)
+    
+    with open(SETTINGS["communities_cache_path"]+SETTINGS["communities_cache_filename"], "wb") as file:
         communities = get_communities()
         pickle.dump(communities, file)
     

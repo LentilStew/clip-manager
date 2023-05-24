@@ -1,9 +1,9 @@
 from streamlit import secrets
 SETTINGS = {
     "max_video_duration": 600,
-    "framerate": 30,
-    "video_width": 1920,
-    "video_height": 1080,
+    "framerate": 24,
+    "video_width": 1280,
+    "video_height": 720,
     "output_options": {
         "vcodec": "libx264",
         "crf": "18",
@@ -14,7 +14,7 @@ SETTINGS = {
         "vcodec": "h264",
         "acodec": "aac"
     },
-    "community_video": True,    
+    "community_video": True,
     "clips_to_get": 20,
     "members_to_get": 30,
     "member_video": True,
@@ -32,9 +32,10 @@ SETTINGS = {
     "streamer_title_template": "{streamer}'s Best Clips of {month} {year}",
     "description_template": "Check out the best clips of {streamers}! Don't forget to show some love to the creators of these clips.\n\nTimestamps:\n",
     "tags": ["best_clips", "twitch", "stream_highlights"],
-    "save_in_firebase" : True,
+    "save_in_firebase": True,
     "used_cached_communities": True,
-    "communities_cache_path":"/data/comunity_ids.pickle"
+    "communities_cache_path": "/data/",
+    "communities_cache_filename": "comunity_ids.pickle"
 }
 
 SETTINGS.update(secrets)
