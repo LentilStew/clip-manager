@@ -53,8 +53,7 @@ class Community():
             top_members = len(self.members)
             print("Top members number is greater than the number of members in the community. Setting top_members to " + str(top_members))
 
-        res = self.twitch.get_top_clips(
-            self.members[day % top_members].id, clips=clips_to_get)
+        res = self.twitch.get_top_clips(self.members[day % top_members].id, clips=clips_to_get, started_at=datetime.datetime.now() - datetime.timedelta(days=30))
 
         return res
 

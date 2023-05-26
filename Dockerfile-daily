@@ -1,8 +1,5 @@
 # Use an official Python runtime as the base image
-FROM ubuntu
-
-RUN apt-get update
-RUN apt-get install -y python3 python3-pip ffmpeg cron
+FROM python:3.8
 
 # Set the working directory in the container
 WORKDIR /app
@@ -15,8 +12,8 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-COPY crontab /etc/cron.d/
+RUN apt-get -y update
 
-RUN touch /var/log/cron.log
+RUN apt-get install -y ffmpeg
 
-CMD cron && tail -f /var/log/cron.log
+CMD ["python", "/app/create_videos.py", "--use-cached-communities", "--save-in-firebase", "--include-member-videos"]

@@ -14,10 +14,10 @@ SETTINGS = {
         "vcodec": "h264",
         "acodec": "aac"
     },
-    "community_video": True,
+    "include_community_video": False,
     "clips_to_get": 20,
     "members_to_get": 30,
-    "member_video": True,
+    "include_member_video": False,
     "member_clips_to_get": 30,
     "member_top_members": 30,
 
@@ -33,7 +33,7 @@ SETTINGS = {
     "description_template": "Check out the best clips of {streamers}! Don't forget to show some love to the creators of these clips.\n\nTimestamps:\n",
     "tags": ["best_clips", "twitch", "stream_highlights"],
     "save_in_firebase": True,
-    "used_cached_communities": True,
+    "use_cached_communities": True,
     "communities_cache_path": "/data/",
     "communities_cache_filename": "comunity_ids.pickle"
 }

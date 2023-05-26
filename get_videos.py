@@ -22,9 +22,11 @@ twitch = Twitch(client_id=SETTINGS['twitch_client_id'],
 def load_cached_communities():
     try:
         with open(SETTINGS["communities_cache_path"]+SETTINGS["communities_cache_filename"], "rb") as file:
+            print("found "+SETTINGS["communities_cache_path"]+SETTINGS["communities_cache_filename"])
             return pickle.load(file)
         
     except FileNotFoundError:
+        print("not found "+SETTINGS["communities_cache_path"]+SETTINGS["communities_cache_filename"])
         return update_communities_cache()
     
 def update_communities_cache():
@@ -110,10 +112,6 @@ def make_community_general_videos(settings, communities):
 def make_community_member_videos(settings, communities):
 
     for community_name, community in communities.items():
-
-        if (not settings["member_video"]):
-            break
-
         community: Community
         clips = community.get_best_member_clips(
             clips_to_get=settings["member_clips_to_get"], top_members=settings["member_top_members"])
