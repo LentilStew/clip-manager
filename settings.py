@@ -8,7 +8,7 @@ SETTINGS = {
         "vcodec": "libx264",
         "crf": "18",
         "acodec": "aac",
-        "f": "mp4"
+        "f": "nut"
     },
     "clip_options": {
         "vcodec": "h264",
@@ -24,8 +24,8 @@ SETTINGS = {
     "communities_atlas": "https://twitchatlas.com/data.json",
     "aspect_ratio_num": 16,
     "aspect_ratio_den": 9,
-    "video_output": "output.mp4",
-    "output_folder": "./outputs",
+    "video_output": "-",
+    "output_folder": "",
     "transition": "./inputs/transition_1s.mp4",
     "firestore-keys-path": "./firestore-key.json",
     "community_title_template": "Best Clips of {creator1}, {creator2} and more! - week {week_num} of {month} {year}",

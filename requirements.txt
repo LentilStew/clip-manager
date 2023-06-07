@@ -1,6 +1,7 @@
 ffmpeg-python
 python-twitch-client
 google-cloud-firestore
+google-cloud-storage
 streamlit
 
 #For terminal app
