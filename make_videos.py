@@ -6,7 +6,7 @@ import io
 import select
 from settings import SETTINGS
 from google.cloud import storage
-
+from datetime import datetime
 bucket_name = "clip-manager-videos"
 client = storage.Client()
 
@@ -97,7 +97,9 @@ def main():
             ffmpeg_command[index] = "-"
 
         p = sp.Popen(ffmpeg_command, stdout=sp.PIPE, stderr=sp.PIPE)
-        stream_stdout_to_bucket(p, clip["title"], bucket_name)
+        date = datetime.now().strftime("%Y/%m/%d")
+        title_with_date = f"{date}/{clip['title']}"
+        stream_stdout_to_bucket(p, title_with_date, bucket_name)
 
 
 if __name__ == "__main__":

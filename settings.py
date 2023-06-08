@@ -2,8 +2,8 @@ from streamlit import secrets
 SETTINGS = {
     "max_video_duration": 600,
     "framerate": 24,
-    "video_width": 1280,
-    "video_height": 720,
+    "video_width": 1920,
+    "video_height": 1080,
     "output_options": {
         "vcodec": "libx264",
         "crf": "18",
