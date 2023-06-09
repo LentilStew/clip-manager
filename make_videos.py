@@ -1,3 +1,15 @@
+import os
+
+# Get the absolute path of the current script file
+current_file = os.path.abspath(__file__)
+
+# Get the directory path of the current script file
+directory = os.path.dirname(current_file)
+
+# Change the current working directory to the script's directory
+os.chdir(directory)
+#quickfix for VM
+
 from firestore import get_clips_from_firestore
 import subprocess as sp
 from typing import Dict, Tuple, Optional, IO, List
