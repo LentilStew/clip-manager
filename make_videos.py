@@ -87,7 +87,6 @@ def main():
         date = datetime.now().strftime("%Y/%m/%d")
         title_with_date = f"{date}/{clip['title']}"
         stream_stdout_to_bucket(p, title_with_date, bucket_name)
-        return 0 
 
 if __name__ == "__main__":
     main()
