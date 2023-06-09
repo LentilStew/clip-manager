@@ -79,20 +79,7 @@ def main():
     for clip in clips_to_make:
         ffmpeg_command: List[str] = clip["ffmpeg_command"].split()
         
-        if not "nut" in ffmpeg_command:
-            filter_complex_index = ffmpeg_command.index('-filter_complex')
-            output_format_index = -1
-            
-            if filter_complex_index != -1:
-                for i in range(filter_complex_index, len(ffmpeg_command)):
-                    if ffmpeg_command[i] == '-f' and i + 1 < len(ffmpeg_command):
-                        output_format_index = i + 1
-                        break
-
-            if output_format_index != -1:
-                ffmpeg_command[output_format_index] = 'nut'
-                
-            # Replace the output filename with "-"
+        if "output.mp4" in ffmpeg_command:
             index = ffmpeg_command.index("output.mp4")
             ffmpeg_command[index] = "-"
 
@@ -100,7 +87,7 @@ def main():
         date = datetime.now().strftime("%Y/%m/%d")
         title_with_date = f"{date}/{clip['title']}"
         stream_stdout_to_bucket(p, title_with_date, bucket_name)
-
+        return 0 
 
 if __name__ == "__main__":
     main()
