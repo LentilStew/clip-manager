@@ -9,3 +9,8 @@ docker run --dns 8.8.8.8 -v data:/data -it ayalaaa/clip-manager-weekly:1.0
 docker build -f "./Dockerfile-website" -t ayalaaa/clip-manager-website:1.0 .
 sudo docker run -p 8501:8501 -it ayalaaa/clip-manager-website:1.0
 
+
+0 1 * * * TZ=America/Argentina/Buenos_Aires /home/gviandres/clip-manager/venv/bin/python3 /home/gviandres/clip-manager/make_videos.py\
+ >> /home/gviandres/clip-manager/logs/logs__$(date +\%Y\%m\%d).txt 2>&1 && \
+ sleep 180 && \
+ sudo shutdown -h now

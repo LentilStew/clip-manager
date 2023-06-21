@@ -80,4 +80,6 @@ def render_page():
             st.header("No clips found 🤷‍♂️")
         
 
-        
+
+if __name__ == "__main__":
+    render_page()

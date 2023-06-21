@@ -6,8 +6,9 @@ from settings import SETTINGS
 db = firestore.Client.from_service_account_info(SETTINGS["firebase-key"])
 
 
-def get_clips_from_firestore(date: Union[datetime.date, str, datetime.datetime] = datetime.datetime.now()) -> list:
-
+def get_clips_from_firestore(date: Union[datetime.date, str, datetime.datetime] = None) -> list:
+    if date is None:
+        date = datetime.datetime.now()
     if not isinstance(date, str):
         date = date.strftime("%d-%m-%y")
 
@@ -23,8 +24,9 @@ def get_clips_from_firestore(date: Union[datetime.date, str, datetime.datetime] 
 # Saves clip-data to firestore
 
 
-def save_clip_to_firestore(clip_data: Union[dict, list], date: Union[datetime.datetime, str] = datetime.datetime.now()):
-
+def save_clip_to_firestore(clip_data: Union[dict, list], date: Union[datetime.datetime, str] = None):
+    if date is None:
+        date = datetime.datetime.now()
     if not isinstance(date, str):
         date = date.strftime("%d-%m-%y")
 
