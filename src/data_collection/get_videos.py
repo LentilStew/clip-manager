@@ -30,7 +30,6 @@ def load_cached_communities():
         return update_communities_cache()
     
 def update_communities_cache():
-    
     os.makedirs(SETTINGS["communities_cache_path"],exist_ok=True)
     
     with open(SETTINGS["communities_cache_path"]+SETTINGS["communities_cache_filename"], "wb") as file:

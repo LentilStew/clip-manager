@@ -48,7 +48,8 @@ def save_clip_to_firestore(clip_data: Union[dict, list], date: Union[datetime.da
             'description': clip.get('description', ""),
             'tags': clip.get('tags', "").split(" "),
             'ffmpeg_command': clip.get('ffmpeg_command', ""),
-            'community_class': clip.get('community_class', "")
+            'community_class': clip.get('community_class', ""),
+            "id": clip.get('id', "")
         })
 
     clips_ref.document(date).update({'Videos': clips})

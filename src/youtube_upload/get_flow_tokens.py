@@ -5,6 +5,8 @@ import requests
 import socket
 import time
 
+from youtube import get_youtube_tokens
+
 
 def send_upload_request(msg: str, url: str = "http://127.0.0.1:5000/upload-video"):
     try:
@@ -21,31 +23,18 @@ def send_upload_request(msg: str, url: str = "http://127.0.0.1:5000/upload-video
     return requests.Response()
 
 
-def wait_until_port_is_available(port: int) -> bool:
+def wait_until_port_is_available(port: int,max_wait_time:int = 5) -> bool:
 
     start_time = time.perf_counter()
+    
     while True:
         try:
             with socket.create_connection(("localhost", port), timeout=1):
                 return True
         except OSError as ex:
             time.sleep(0.01)
-            if time.perf_counter() - start_time >= 5:
+            if time.perf_counter() - start_time >= max_wait_time:
                 return False
-
-
-def get_youtube_tokens(credentials: dict, port: int = 8081) -> str:
-    try:
-        flow = InstalledAppFlow.from_client_config(credentials, scopes=[
-            "https://www.googleapis.com/auth/youtube.upload"])
-        flow.run_local_server(port=port)
-        credentials = flow.credentials
-
-        return credentials.to_json()
-    except Exception as e:
-        print(e)
-        return ""
-
 
 def upload_credentials(channel_info: dict) -> float:
     """

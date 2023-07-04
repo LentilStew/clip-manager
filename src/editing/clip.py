@@ -11,7 +11,7 @@ class Clip:
         streams_info,self.format = get_clip_data(self.file_path)
         
         if not streams_info and not self.format:
-            print("Invalid input")
+            print("Invalid input",file_path)
             return None
         self.video_info = None
         self.audio_info = None

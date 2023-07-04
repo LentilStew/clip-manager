@@ -1,11 +1,7 @@
-from firestore import get_clips_from_firestore, save_clip_to_firestore
+from firestore.firestore import get_clips_from_firestore
 import streamlit as st
 import datetime
 from settings import SETTINGS
-from get_videos import make_community_general_videos,make_community_member_videos, get_communities,load_cached_communities
-
-
-
 
 def render_clip_settings():
     

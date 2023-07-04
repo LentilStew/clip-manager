@@ -16,4 +16,4 @@ RUN apt-get -y update
 
 RUN apt-get install -y ffmpeg
 
-CMD ["python", "/app/create_videos.py", "--use-cached-communities", "--save-in-firebase", "--include-member-videos"]
+CMD ["python", "/app/src/create_videos.py", "--use-cached-communities", "--save-in-firebase", "--include-member-videos"]

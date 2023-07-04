@@ -1,11 +1,11 @@
-from get_videos import make_community_general_videos, make_community_member_videos, get_communities, load_cached_communities, update_communities_cache
-from firestore import save_clip_to_firestore
+from data_collection.get_videos import make_community_general_videos, make_community_member_videos, get_communities, load_cached_communities, update_communities_cache
+from firestore.firestore import save_clip_to_firestore
 import click
-from settings import SETTINGS
+from settings import SETTINGS,QUICK_VIDEO_SETTINGS
 from tqdm import tqdm
 import json
-import sys
 import argparse
+import uuid
 
 @click.command()
 def promp_video_settings() -> dict:
@@ -110,12 +110,15 @@ def parse_args():
     parser.add_argument('--use-cached-communities', action='store_true', help='Use cached communities')
     parser.add_argument('--ui', action='store_true', help='Enable UI')
     parser.add_argument('--communities-cache-path', type=str, help='communities cache path')
+    parser.add_argument('--quick-video',type=str, help='quick video')
     
 
     args = parser.parse_args()
     
     if args.max_video_duration:
         new_settings['max_video_duration'] = args.max_video_duration
+    if args.quick_video:
+        new_settings['quick_video'] = args.quick_video
     if args.framerate:
         new_settings['framerate'] = args.framerate
     if args.video_width:
@@ -169,6 +172,9 @@ def main():
         user_settings = promp_video_settings(standalone_mode=False)
     else:
         user_settings = SETTINGS
+        
+    if user_settings.get("quick_video"):
+        user_settings.update(QUICK_VIDEO_SETTINGS)
 
     click.echo("Getting communities, this may take some time...")
     
@@ -180,17 +186,16 @@ def main():
     if user_settings["include_community_video"]:
         for vid in tqdm(make_community_general_videos(settings=user_settings, communities=communities),
                         total=len(communities), desc='Community General Videos', unit='video'):
-
+            vid["id"] = str(uuid.uuid4())
             if user_settings["save_in_firebase"]:
                 save_clip_to_firestore(vid)
             else:
                 print(json.dumps(vid))                
 
     if user_settings["include_member_video"]:
-
         for vid in tqdm(make_community_member_videos(settings=user_settings, communities=communities),
                         total=len(communities), desc='Community Member Videos', unit='video'):
-
+            vid["id"] = str(uuid.uuid4())
             if user_settings["save_in_firebase"]:
                 save_clip_to_firestore(vid)
             else:
