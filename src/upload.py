@@ -38,6 +38,7 @@ def main():
     
     for channel in channels:
         for brand_channel in channel["channels"]:
+            
             if isinstance(brand_channel["client-token"],str):
                 brand_channel["client-token"] = json.loads(brand_channel["client-token"])
 
