@@ -4,7 +4,7 @@ import urllib.request
 from editing.clip import Clip
 from editing.video import Video
 from data_collection.helix import Twitch
-from youtube_metadata import generate_youtube_data
+from youtube_upload.youtube_metadata import generate_youtube_data
 from settings import SETTINGS
 import pickle
 import os

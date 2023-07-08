@@ -1,7 +1,7 @@
 from firestore.firestore import get_clips_from_firestore
 import json
 from settings import SETTINGS, YOUTUBE_ID_TO_COMMUNITY_ID, YOUTUBE_UPLOAD_SETTINGS
-from youtube_upload.youtube import pipe_bucket_to_youtube, try_refresh_tokens,get_youtube_tokens
+from youtube_upload.youtube import try_refresh_tokens,get_youtube_tokens
 from google.oauth2.credentials import Credentials
 import time
 import socket
@@ -38,7 +38,7 @@ def main():
     
     for channel in channels:
         for brand_channel in channel["channels"]:
-            
+
             if isinstance(brand_channel["client-token"],str):
                 brand_channel["client-token"] = json.loads(brand_channel["client-token"])
 
