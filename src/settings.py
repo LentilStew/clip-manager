@@ -1,6 +1,6 @@
 import json
 import os
-
+import subprocess
 SETTINGS = {
     "max_video_duration": 600,
     "framerate": 24,
@@ -45,7 +45,11 @@ SETTINGS = {
 }
 
 YOUTUBE_UPLOAD_SETTINGS = {
-    "start-port":"8080"
+    "start-port":8085,
+    "retries":8,
+    "gcloud-key": subprocess.check_output(['gcloud', 'auth', 'print-identity-token']).decode().strip(),
+    "cloud-run-url": "https://clip-manager-upload-server-xmpigou3sq-uc.a.run.app/upload",
+    "channels-json-path": "./channels.json"
 }
 
 QUICK_VIDEO_SETTINGS = {

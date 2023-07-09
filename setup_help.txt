@@ -9,6 +9,11 @@ docker run --dns 8.8.8.8 -v data:/data -it ayalaaa/clip-manager-weekly:1.0
 docker build -f "./Dockerfile-website" -t ayalaaa/clip-manager-website:1.0 .
 sudo docker run -p 8501:8501 -it ayalaaa/clip-manager-website:1.0
 
+docker build -f "./Dockerfile-upload-server" -t ayalaaa/clip-manager-upload-server:1.0 .
+docker run -p 8080:8080 -it ayalaaa/clip-manager-upload-server:1.0
+
+docker tag ayalaaa/clip-manager-upload-server:1.0 us-central1-docker.pkg.dev/learned-acronym-387420/clips/clip-manager-upload-server
+docker push us-central1-docker.pkg.dev/learned-acronym-387420/clips/clip-manager-upload-server
 
 0 1 * * * TZ=America/Argentina/Buenos_Aires /home/gviandres/clip-manager/venv/bin/python3 /home/gviandres/clip-manager/make_videos.py\
  >> /home/gviandres/clip-manager/logs/logs__$(date +\%Y\%m\%d).txt 2>&1 && \
