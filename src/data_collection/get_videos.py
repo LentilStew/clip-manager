@@ -96,6 +96,7 @@ def make_community_general_videos(settings, communities):
             clips_used.append(clip_data)
 
         if len(new_video.clips) == 0:
+            yield None
             continue
         
         transition_duration = 0

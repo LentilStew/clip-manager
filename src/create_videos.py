@@ -2,7 +2,6 @@ from data_collection.get_videos import make_community_general_videos, make_commu
 from firestore.firestore import save_clip_to_firestore
 import click
 from settings import SETTINGS,QUICK_VIDEO_SETTINGS
-from tqdm import tqdm
 import json
 import argparse
 import uuid
@@ -182,20 +181,33 @@ def main():
         communities = load_cached_communities()
     else:
         communities = update_communities_cache()
-
+    count = 0
     if user_settings["include_community_video"]:
-        for vid in tqdm(make_community_general_videos(settings=user_settings, communities=communities),
-                        total=len(communities), desc='Community General Videos', unit='video'):
+        for vid in make_community_general_videos(settings=user_settings, communities=communities):
+            print(str(count) + "/" + str(len(communities)))
+            count += 1
+            if vid is None:
+                print("Member doesn't have clips, skiping")
+                continue
+            
             vid["id"] = str(uuid.uuid4())
             if user_settings["save_in_firebase"]:
                 save_clip_to_firestore(vid)
             else:
                 print(json.dumps(vid))                
+    count = 0
 
     if user_settings["include_member_video"]:
-        for vid in tqdm(make_community_member_videos(settings=user_settings, communities=communities),
-                        total=len(communities), desc='Community Member Videos', unit='video'):
+        for vid in make_community_member_videos(settings=user_settings, communities=communities):
+            print(str(count) + "/" + str(len(communities)))
+            count += 1
+            
+            if vid is None:
+                print("Member doesn't have clips, skiping")
+                continue
+            
             vid["id"] = str(uuid.uuid4())
+            
             if user_settings["save_in_firebase"]:
                 save_clip_to_firestore(vid)
             else:

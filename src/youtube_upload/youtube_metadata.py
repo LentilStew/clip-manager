@@ -35,7 +35,7 @@ def generate_youtube_data(clips,transition_duration:int=0):
         duration = int(clip['duration'])
 
         # calculate timestamp for clip
-        timestamp = datetime.timedelta(seconds=time_sum)
+        timestamp = datetime.timedelta(seconds=int(time_sum))
 
         # add clip information to description
         description += f"{str(timestamp)} {clip['title']} \n"

@@ -1,6 +1,4 @@
 import json
-import os
-import subprocess
 SETTINGS = {
     "max_video_duration": 600,
     "framerate": 24,
@@ -43,21 +41,25 @@ SETTINGS = {
     },
     "quick_video_settings":False
 }
-
 YOUTUBE_UPLOAD_SETTINGS = {
     "start-port":8085,
     "retries":24,
-    "gcloud-key": subprocess.check_output(['gcloud', 'auth', 'print-identity-token']).decode().strip(),
     "cloud-run-url": "https://clip-manager-upload-server-xmpigou3sq-uc.a.run.app/upload",
-    "channels-json-path": "./channels.json"
+    "channels-json-path": "./channels.json",
+    "single_thread" : False,
+    "test":False,
+    "delete_from_bucket":True
 }
-
+    
 QUICK_VIDEO_SETTINGS = {
-    "include_community_video": False,
-    "include_member_video": True,
+    "include_community_video": True,
+    "include_member_video": False,
     "member_clips_to_get": 5,
     "use_cached_communities": True,
-    "save_in_firebase": False
+    "save_in_firebase": False,
+    
+    "clips_to_get": 20,
+    "members_to_get": 3,
 }
 
 with open("./secrets/firebase-credentials.json", "r") as f:

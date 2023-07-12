@@ -112,7 +112,7 @@ def delete_file_from_bucket(bucket_name:str, bucket_file:str):
     except Exception as error:
         print(error)
         
-def upload_video_from_server(tokens:str, request_body:str,bucket_name:str,bucket_file:str,gcloud_auth,url="localhost:8080/upload",delete_from_bucket:bool=True):
+def upload_video_from_server(tokens:str, request_body:str,bucket_name:str,bucket_file:str,gcloud_auth,url="localhost:8080/upload",delete_from_bucket:bool=True,test=False):
     
     headers = {"Content-Type": "application/json",
                "Authorization": "Bearer {gcloud_auth}".format(gcloud_auth=gcloud_auth)}
@@ -122,7 +122,8 @@ def upload_video_from_server(tokens:str, request_body:str,bucket_name:str,bucket
         "credential": tokens, 
         "request-body": request_body,
         "bucket_name":bucket_name,
-        "delete_from_bucket":delete_from_bucket
+        "delete_from_bucket":delete_from_bucket,
+        "test":test
         }
     with open('requests.log', 'a') as f:
         f.write(json.dumps({
