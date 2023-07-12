@@ -46,28 +46,19 @@ SETTINGS = {
 
 YOUTUBE_UPLOAD_SETTINGS = {
     "start-port":8085,
-    "retries":8,
+    "retries":24,
     "gcloud-key": subprocess.check_output(['gcloud', 'auth', 'print-identity-token']).decode().strip(),
     "cloud-run-url": "https://clip-manager-upload-server-xmpigou3sq-uc.a.run.app/upload",
     "channels-json-path": "./channels.json"
 }
 
 QUICK_VIDEO_SETTINGS = {
-    "member_clips_to_get": 5,
     "include_community_video": False,
     "include_member_video": True,
+    "member_clips_to_get": 5,
+    "use_cached_communities": True,
+    "save_in_firebase": False
 }
-
-YOUTUBE_ID_TO_COMMUNITY_ID = {
-    "@ClipsENG-nb7kx":0,
-    "@clipsfr2375":8,
-    "@clipslol3546":18
-
-}
-
-
-#print cwd
-print (os.getcwd())
 
 with open("./secrets/firebase-credentials.json", "r") as f:
     SETTINGS["firebase-key"] = json.load(f)

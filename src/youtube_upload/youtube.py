@@ -99,25 +99,86 @@ def pipe_bucket_to_youtube(bucket_name:str, bucket_file:str, credentials: Creden
     
     with blob.open("rb")as f:
         media = MediaIoBaseUpload(f, chunksize=1024 * 1024, mimetype='video/mp4')
-        upload_video_to_youtube(credentials, media, body)
+        res = upload_video_to_youtube(credentials, media, body)
+    return res
+def delete_file_from_bucket(bucket_name:str, bucket_file:str):
+    try:
+        client = google.cloud.storage.Client()
+
+        bucket = client.bucket(bucket_name)
+
+        blob = bucket.blob(bucket_file)
+        blob.delete()
+    except Exception as error:
+        print(error)
         
-def upload_video_from_server( tokens:str, request_body:str,bucket_name:str,bucket_file:str,gcloud_auth,url="localhost:8080/upload"):
+def upload_video_from_server(tokens:str, request_body:str,bucket_name:str,bucket_file:str,gcloud_auth,url="localhost:8080/upload",delete_from_bucket:bool=True):
     
     headers = {"Content-Type": "application/json",
                "Authorization": "Bearer {gcloud_auth}".format(gcloud_auth=gcloud_auth)}
     
-    request_data = {"bucket_file": bucket_file, "credential": tokens, "request-body": request_body,"bucket_name":bucket_name}
+    request_data = {
+        "bucket_file": bucket_file, 
+        "credential": tokens, 
+        "request-body": request_body,
+        "bucket_name":bucket_name,
+        "delete_from_bucket":delete_from_bucket
+        }
     with open('requests.log', 'a') as f:
         f.write(json.dumps({
             'headers': headers,
             'request_data': request_data
         },indent=4) + '\n')
+        
     try:
+        print("UPLOADING {bucket_file} TO {bucket_name}...".format(bucket_file=bucket_file,bucket_name=bucket_name))
+        
         response = requests.post(url, json=request_data, headers=headers)
+        
     except Exception as error:
         print(f'Error uploading video to youtube: {error}')
         return None
+    if response.status_code != 200:
+        print(f'Error uploading video to youtube: {response.text}')
+        return None
     
-    print(response.text)
-    
+    print("UPLOADED SUCESFULLY!!! {response_text}".format(response_text=response.text))
     return response.status_code
+"""
+Future channels:
+    {
+        "client-config": {},
+        "channels": [
+            {
+                "channel-name": "KOR",
+                "community-number": 10,
+                "channel-id": ""
+            },
+            {
+                "channel-name": "BR",
+                "community-number": 4,
+                "channel-id": ""
+            },
+            {
+                "channel-name": "PL",
+                "community-number": 21,
+                "channel-id": ""
+            },
+            {
+                "channel-name": "TR",
+                "community-number": 12,
+                "channel-id": ""
+            },
+            {
+                "channel-name": "JP",
+                "community-number": 20,
+                "channel-id": ""
+            },
+            {
+                "channel-name": "CHIN",
+                "community-number": 11,
+                "channel-id": ""
+            }
+        ]
+    }
+"""

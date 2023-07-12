@@ -1,10 +1,15 @@
-from firestore.firestore import get_clips_from_firestore
+from firestore.firestore import get_clips_from_firestore,change_video_status
 import json
-from settings import SETTINGS, YOUTUBE_ID_TO_COMMUNITY_ID, YOUTUBE_UPLOAD_SETTINGS
+from settings import SETTINGS,  YOUTUBE_UPLOAD_SETTINGS
 from youtube_upload.youtube import try_refresh_tokens,get_youtube_tokens, upload_video_from_server
 from google.oauth2.credentials import Credentials
+import threading
 
-
+def _upload_video_from_server( tokens:str, request_body:str,bucket_name:str,bucket_file:str,gcloud_auth,url="localhost:8080/upload",delete_from_bucket:bool=True):
+    res = upload_video_from_server(tokens,request_body,bucket_name,bucket_file,gcloud_auth,url,delete_from_bucket=delete_from_bucket)
+    if res is not None:
+        change_video_status(bucket_file)
+    return res
 def main():
     today_videos:list = get_clips_from_firestore()
     community_to_videos = {}
@@ -21,13 +26,24 @@ def main():
     port = YOUTUBE_UPLOAD_SETTINGS["start-port"]
     nb_retries = YOUTUBE_UPLOAD_SETTINGS["retries"]
     
+    threads = []
+
+    
     for channel in channels:
         for brand_channel in channel["channels"]:
-
-            if isinstance(brand_channel["client-token"],str):
-                brand_channel["client-token"] = json.loads(brand_channel["client-token"])
-
-            credentials:Credentials = try_refresh_tokens(brand_channel["client-token"],["https://www.googleapis.com/auth/youtube.upload"])
+            community_id = brand_channel["community-number"]
+            
+            #this checks if there are any videos to upload
+            for video in community_to_videos.get(str(community_id),[]):
+                if video.get("uploaded",False) is False:
+                    break
+                    
+            else:
+                continue
+            
+            credentials = None
+            if brand_channel.get("client-token") is not None:
+                credentials:Credentials = try_refresh_tokens(brand_channel["client-token"],["https://www.googleapis.com/auth/youtube.upload"])
             
             if credentials is None:
                 print("\n\n*****************************************\n\n")
@@ -38,10 +54,12 @@ def main():
                 if credentials is None:
                     return None
                 
+                brand_channel["client-token"] = json.loads(credentials.to_json())
+                
                 with open(YOUTUBE_UPLOAD_SETTINGS["channels-json-path"],"w") as f:
                     json.dump(channels,f)
 
-            community_id = YOUTUBE_ID_TO_COMMUNITY_ID.get(brand_channel["channel-id"])
+            
             
             for video in community_to_videos[str(community_id)]:
                 request_body = {
@@ -56,11 +74,21 @@ def main():
                     }
                 }
                 
-                upload_video_from_server(credentials.to_json(),request_body,SETTINGS["gcp"]["bucket-name"],video["id"],YOUTUBE_UPLOAD_SETTINGS["gcloud-key"],YOUTUBE_UPLOAD_SETTINGS["cloud-run-url"])
-
-            channel["credentials"] = credentials.to_json()
-
-
-
+                new_thread = threading.Thread(target=_upload_video_from_server, args=(
+                    credentials.to_json(),
+                    json.dumps( request_body),
+                    SETTINGS["gcp"]["bucket-name"],
+                    video["id"],
+                    YOUTUBE_UPLOAD_SETTINGS["gcloud-key"],
+                    YOUTUBE_UPLOAD_SETTINGS["cloud-run-url"]))
+                
+                new_thread.start()
+                threads.append(new_thread)
+                
+    #await for threads
+    for thread in threads:
+        thread.join()
+        
 if __name__ == "__main__":
     main()
+    

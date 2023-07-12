@@ -110,7 +110,7 @@ def parse_args():
     parser.add_argument('--use-cached-communities', action='store_true', help='Use cached communities')
     parser.add_argument('--ui', action='store_true', help='Enable UI')
     parser.add_argument('--communities-cache-path', type=str, help='communities cache path')
-    parser.add_argument('--quick-video',type=str, help='quick video')
+    parser.add_argument('--quick-video',action='store_true', help='quick video')
     
 
     args = parser.parse_args()

@@ -6,7 +6,7 @@ from settings import SETTINGS
 # define title templates
 
 
-def generate_youtube_data(clips):
+def generate_youtube_data(clips,transition_duration:int=0):
     # get current date
     today = datetime.date.today()
     week_num = today.strftime("%U")
@@ -35,14 +35,15 @@ def generate_youtube_data(clips):
         duration = int(clip['duration'])
 
         # calculate timestamp for clip
-        time_sum += duration
         timestamp = datetime.timedelta(seconds=time_sum)
 
         # add clip information to description
-        description += f"{i+1}. ({str(timestamp - datetime.timedelta(seconds=duration))} - {str(timestamp)}) {clip['url']} \n"
+        description += f"{str(timestamp)} {clip['title']} \n"
+        
+        time_sum += duration + transition_duration
         
     # generate tag string
     tags_str = "#" + " #".join(SETTINGS["tags"] + creators[:2])
-
+    description += tags_str
     # return video information as a dictionary
     return {"title": title, "description": description, "tags": tags_str}

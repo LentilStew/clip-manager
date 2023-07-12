@@ -97,8 +97,12 @@ def make_community_general_videos(settings, communities):
 
         if len(new_video.clips) == 0:
             continue
-
-        video_data = generate_youtube_data(clips_used)
+        
+        transition_duration = 0
+        if new_video.transition is not None:
+            transition_duration = new_video.transition.duration
+            
+        video_data = generate_youtube_data(clips_used,transition_duration)
 
         video_data["ffmpeg_command"] = " ".join(
             new_video.create_ffmpeg_command())
