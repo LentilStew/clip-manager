@@ -46,7 +46,7 @@ YOUTUBE_UPLOAD_SETTINGS = {
     "retries":24,
     "cloud-run-url": "https://clip-manager-upload-server-xmpigou3sq-uc.a.run.app/upload",
     "channels-json-path": "./channels.json",
-    "single_thread" : False,
+    "single_thread" : True,
     "test":False,
     "delete_from_bucket":True
 }

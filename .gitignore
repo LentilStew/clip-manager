@@ -13,4 +13,4 @@ outputs/
 .streamlit/
 branding/*
 requests.log
-*.pickle
+.pickle

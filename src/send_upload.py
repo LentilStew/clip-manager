@@ -42,8 +42,9 @@ def main():
             for video in community_to_videos.get(str(community_id),[]):
                 if video.get("uploaded",False) is False:
                     break
-                    
+
             else:
+                print("No new videos for community ", brand_channel["channel-id"])
                 continue
             
             credentials_json = brand_channel.get("client-token")
@@ -69,6 +70,9 @@ def main():
             
             
             for video in community_to_videos[str(community_id)]:
+                if video.get("uploaded",False) is True:
+                    continue
+                
                 request_body = {
                     'snippet': {
                         'title': video["title"],

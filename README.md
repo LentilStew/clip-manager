@@ -1,87 +1,87 @@
-See it live!!
-(Video generation doesn't work since the server that is running this app doesn't have ffmpeg installed you can only look at videos already made, Example in 2023/04/26, if you want to create your own, clone the repository)
-https://lentilstew-clip-manager-main-8ygncl.streamlit.app/
-# Community Highlights Bot
+# Clip-manager
 
-The Community Highlights Bot is a Python script that automatically generates highlight videos for Twitch communities and their members. It uses the Twitch API to retrieve data about the top clips from each community and member, and then uses FFmpeg to edit the clips together into a single video.
+This project is a set of Python scripts that automatically create and upload videos from Twitch to YouTube.
 
-![Video settings](./readme_images/settings.png)
-![Video created](readme_images/video-created-example.png)
-## Features
+## Apps
 
-- Automatically generates highlight videos for Twitch communities and their members
-- Uses the Twitch API to retrieve data about the top clips from each community and member
-- Uses FFmpeg to edit the clips together into a single video
-- Customizable settings for video output, clip selection, and more 
+The project consists of the following apps:
 
-## Technologies Used
-- Python 
-- Firestore 
-- Streamlit 
-- FFmpeg 
-- Twitch API 
-- Data analysis done in this GitHub project: [VisualizingTwitchCommunities](https://github.com/KiranGershenfeld/VisualizingTwitchCommunities)
+* `/src/create_videos.py`: This app uses the Twitch API to create ffmpeg commands, YouTube description, title and tags based on the Twitch communities analysis done in this website https://twitchatlas.com/. Everything is saved in Firebase. It is supposed to run on Cloud Run job (once a day), it's used in Dockerfile-daily and Dockerfile-weekly.
+  
+* `/src/make_videos.py`: This app uses the videos made with `/src/create_videos.py` and runs the ffmpeg commands. The output is saved to a GCP bucket. It is supposed to run on a VM Instance with as cron job. More information is in `/setup_help.txt`.
 
-## settings.py
-In this file you load the default settings for the project, and it also loads the secret settings from the streamlit secrets
+* `/src/upload_server.py`: This app is a Flask server that waits for uploads. It is supposed to get the video information and upload it from the bucket to YouTube.It runs on Cloud Run (Dockerfile-upload-server).
 
-## youtube_metadata.py
-In this file there is a function that creates the youtube title description and tags from the clips 
+* `/src/send_upload.py`: This app checks for new videos in Firebase and for each video sends a request to upload the video to the assigned channel in `/channels.json`. If the channel tokens aren't specified, it will open a Chrome tab so you log in. (You are supposed to run this manually every day, because sometimes you need to relog into the YouTube accounts).
 
-## get_videos.py
-This file first uses the twitch api to  find the twitch IDs from the streamers in the atlas website, then there are 2 functions both are used to find the best clips from each streamer
+* `settings.py`: All settings for the app.
 
-## firestore.py
-This file is used to communicate with the Firestore server for both writing and reading information about, both the video and the youtube metadata generated, this data, is then represented in the .
+* `streamlit_website.py`: (Very old not updated) This app shows the Firebase videos in a website. It uses Cloud Run as well (Dockerfile-website).
 
-## /ui/render.py
-This file is used to render the website using Streamlit.
+What the website looks like
+![Website](./readme_images/video-created-example.png)
+See it live at! https://clip-manager-xmpigou3sq-rj.a.run.app/
 
-## /editing/clip.py /editing/video.py
-These are classes that represent clips and videos, respectively. They use FFmpeg to retrieve data from the videos, such as video duration. The video.py file generates the FFmpeg command that creates the video.
+## One use Apps
+`/src/youtube_upload/create_channel_branding.ipynb:`
 
-## /data_collection/communities.py
-this is a class that represents the communities from the atlas website
+Creates banners and pfps for each channel
+![Banner example](./readme_images/banner.png)
+ 
+## Secrets
 
-## /data_collection/helix.py
-this file is were the twitch api is used
-## /requirements.txt
-These are the libraries you need to install to use the app
-- ffmpeg-python
-- python-twitch-client
-- google-cloud-firestore
-- streamlit
+You need the Firebase credentials and the Twitch API credentials in the `secrets/` directory. The YouTube credentials go in `channels.json`, (only 6 brand-channels per channel since the api only allows 6 videos a day)
+
+```json
+{
+    [
+        {
+            "client-config": {},
+            "channels": [
+                {
+                    "channel-name": "ENG",
+                    "community-number": 0,
+                    "channel-id": "@ClipsENG-nb7kx",
+                },
+                {
+                    "channel-name": "ESP",
+                    "community-number": 16,
+                    "channel-id": "@clipsesp7744",
+                }
+                ]
+        },
+                {
+            "client-config": {},
+            "channels": [
+                {
+                    "channel-name": "GAME",
+                    "community-number": 13,
+                    "channel-id": "@ClipsGAME-fu3eb"
+                },
+                {
+                    "channel-name": "OTV",
+                    "community-number": 9,
+                    "channel-id": "@ClipsOTV-gf2dx"
+                }
+                ]
+        }
+    ]
+}
+```
 
 ## Usage
-To use the Community Highlights Bot, simply run ```streamlit run main.py``` . The bot will retrieve data about the top clips and members from each community and member, and use FFmpeg to edit the clips together into a single video. (This app doesn't run the ffmpeg commands, it just makes them)
 
-## Settings
-To use Twitch API and Firebase, you need to obtain credentials by registering your application on Twitch Developer Console and Firebase Console respectively.
+To use the project, you need to:
 
-Once you've obtained your credentials, you should create a .streamlit/secrets.toml file in your project's root directory and add the following keys with their corresponding values:
-### /.streamlit/secrest.toml
-```toml
-TWITCH_CLIENT_ID="your_twitch_client_id"
-TWITCH_CLIENT_SECRET="your_twitch_client_secret"
+1. Install the dependencies.
+2. Create a Firebase project and add the credentials to the `/secrets/` directory.
+3. Create a Twitch API key and add it the credentials to the `/secrets/` directory.
+4. Create a YouTube API key and add it to the `channels.json` file.
+5. Run the `create_videos.py` app.
+6. Run the `make_videos.py` app.
+7. Run the `upload_server.py` app.
+8. Run the `send_upload.py` app.
 
-[FIREBASE_KEY]
-TYPE="service_account"
-PROJECT_ID="your_project_id"
-PRIVATE_KEY_ID="your_private_key_id"
-PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nyour_private_key\n-----END PRIVATE KEY-----\n"
-CLIENT_EMAIL="your_client_email"
-CLIENT_ID="your_client_id"
-AUTH_URI="https://accounts.google.com/o/oauth2/auth"
-TOKEN_URI="https://oauth2.googleapis.com/token"
-AUTH_PROVIDER_X509_CERT_URL="https://www.googleapis.com/oauth2/v1/certs"
-CLIENT_X509_CERT_URL="your_client_x509_cert_url"
-```
+## More Information
 
-
-You can also change the appearence of the website with 
-### /.streamlit/config.toml
-```toml
-[theme]
-base="dark"
-secondaryBackgroundColor="#141616"
-```
+For more information, please see the [setup_help.txt](setup_help.txt) file.

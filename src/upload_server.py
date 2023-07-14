@@ -6,6 +6,7 @@ from flask import jsonify
 import logging
 app = Flask(__name__)
 app.logger.setLevel(logging.INFO)
+
 @app.route("/upload", methods=["POST"])
 def upload():
     bucket_name = request.json["bucket_name"]

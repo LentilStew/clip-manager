@@ -132,7 +132,7 @@ def upload_video_from_server(tokens:str, request_body:str,bucket_name:str,bucket
         },indent=4) + '\n')
         
     try:
-        print("UPLOADING {bucket_file} TO {bucket_name}...".format(bucket_file=bucket_file,bucket_name=bucket_name))
+        print("UPLOADING {bucket_file} FROM {bucket_name}...".format(bucket_file=bucket_file,bucket_name=bucket_name))
         
         response = requests.post(url, json=request_data, headers=headers)
         
@@ -143,7 +143,7 @@ def upload_video_from_server(tokens:str, request_body:str,bucket_name:str,bucket
         print(f'Error uploading video to youtube: {response.text}')
         return None
     
-    print("UPLOADED SUCESFULLY!!! {response_text}".format(response_text=response.text))
+    print("UPLOADED SUCESFULLY!!! https://www.youtube.com/watch?v={response_text}".format(response_text=response.json().get("message")))
     return response.status_code
 """
 Future channels:
